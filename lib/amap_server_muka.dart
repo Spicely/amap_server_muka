@@ -19,7 +19,7 @@ class AMapServerMuka {
     _key = key;
   }
 
-  static List<AMapDistrict> _districtCache = [];
+  static final Map<String, List<AMapDistrict>> _districtCache = {};
 
   /// 行政区域查询
   ///
@@ -34,9 +34,11 @@ class AMapServerMuka {
     String? extensions,
     String? filter,
     bool cache = false,
+    String? cacheKey,
   }) async {
-    if (cache && _districtCache.isNotEmpty) {
-      return _districtCache;
+    assert(cache == true && cacheKey != null, 'cacheKey must be null when cache is true');
+    if (cache && _districtCache[cacheKey] != null) {
+      return _districtCache[cacheKey!]!;
     }
     final url = '${_baseUrl}config/district'
         '?key=$_key'
@@ -53,7 +55,7 @@ class AMapServerMuka {
 
     List<AMapDistrict> data = (jsonDecode(res)['districts'] as List).map((e) => AMapDistrict.fromJson(e)).toList();
     if (cache) {
-      _districtCache = data;
+      _districtCache[cacheKey!] = data;
     }
     return data;
   }
